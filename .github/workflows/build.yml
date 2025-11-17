@@ -1,55 +1,34 @@
-name: Build EXE (Windows)
+name: Build EXE
 
 on:
   push:
     branches: [ "main" ]
-  workflow_dispatch: {}
+  workflow_dispatch:
 
 jobs:
-  build_exe:
+  build:
     runs-on: windows-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pyinstaller
+    - name: Install dependencies
+      run: pip install -r requirements.txt
 
-      - name: Build EXE with PyInstaller (onefile)
-        run: |
-          # Remove old build artifacts
-          rmdir /s /q dist || echo none
-          rmdir /s /q build || echo none
-          del /f /q main.spec || echo none
-          pyinstaller --onefile --name monitor main.py
+    - name: Clean previous builds
+      run: |
+        if (Test-Path dist) { Remove-Item dist -Recurse -Force }
+        if (Test-Path build) { Remove-Item build -Recurse -Force }
 
-      - name: List produced files
-        run: dir /s
+    - name: Build EXE
+      run: pyinstaller --onefile main.py
 
-      - name: Create release
-        id: release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: v${{ github.run_number }}
-          name: Monitor EXE ${{ github.run_number }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload artifact to release
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: ./dist/monitor.exe
-          asset_name: monitor.exe
-          asset_content_type: application/octet-stream
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: monitor-exe
+        path: dist/main.exe
