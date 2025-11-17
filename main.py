@@ -4,7 +4,6 @@ import csv
 from datetime import datetime
 import os
 
-# Имя файла лога
 LOG_FILE = "log.csv"
 
 
@@ -50,13 +49,22 @@ def write_row(cpu, ram, battery, processes):
 
 
 def main():
-    print("Мониторинг запущен. Данные пишутся в log.csv. Нажми CTRL + C чтобы остановить.")
+    print("Мониторинг запущен. Данные пишутся в log.csv.")
+    print("Нажми CTRL + C чтобы остановить.\n")
+
     init_csv()
 
     while True:
         cpu, ram, battery, processes = collect_metrics()
+
+        # Вывод в реальном времени
+        print(
+            f"CPU: {cpu}% | RAM: {ram}% | Battery: {battery}% | Processes: {processes}",
+            end="\r"
+        )
+
         write_row(cpu, ram, battery, processes)
-        time.sleep(2)  # интервал записи в секунду
+        time.sleep(1)  # Запись каждую секунду
 
 
 if __name__ == "__main__":
