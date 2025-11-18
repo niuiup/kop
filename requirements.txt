@@ -1,2 +1,15 @@
-psutil
-pyinstaller
+# System metrics
+psutil==5.9.8
+
+# Packaging (exe)
+pyinstaller==6.3.0
+
+# Future analytics engine
+numpy==1.26.4
+pandas==2.2.2
+
+# Fast JSON for custom metric formats
+orjson==3.10.7
+
+# Improved logging
+loguru==0.7.2
